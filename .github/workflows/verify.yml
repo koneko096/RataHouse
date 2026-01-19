@@ -1,10 +1,6 @@
 name: Verify CI
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: push
 
 jobs:
   build:
@@ -25,8 +21,13 @@ jobs:
     - name: Build Project
       run: msbuild RataHouse.sln /p:Configuration=Debug /p:Platform=x64 /p:PlatformToolset=v143
 
-    - name: Setup VSTest
-      uses: darenm/Setup-VSTest@v1
-
     - name: Run Tests
-      run: vstest.console.exe x64\Debug\RataHouseTests.exe
+      run: x64\Debug\RataHouseTests.exe
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      if: github.ref_type == 'tag'
+      with:
+        files: x64/Debug/RataHouse.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
