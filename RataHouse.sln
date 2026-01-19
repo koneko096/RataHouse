@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RataHouse", "RataHouse.vcxproj", "{DE8D7099-6560-4A6F-B949-B512A7E5950A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RataHouseTests", "RataHouseTests.vcxproj", "{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{DE8D7099-6560-4A6F-B949-B512A7E5950A}.Release|x64.Build.0 = Release|x64
 		{DE8D7099-6560-4A6F-B949-B512A7E5950A}.Release|x86.ActiveCfg = Release|Win32
 		{DE8D7099-6560-4A6F-B949-B512A7E5950A}.Release|x86.Build.0 = Release|Win32
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Debug|x64.ActiveCfg = Debug|x64
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Debug|x64.Build.0 = Debug|x64
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Debug|x86.ActiveCfg = Debug|Win32
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Debug|x86.Build.0 = Debug|Win32
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Release|x64.ActiveCfg = Release|x64
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Release|x64.Build.0 = Release|x64
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Release|x86.ActiveCfg = Release|Win32
+		{A2C87291-1B2F-4D2A-8B3E-BFE87A65950A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

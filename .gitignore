@@ -63,6 +63,7 @@ artifacts/
 *.rsp
 *.sbr
 *.tlb
+*.exe
 *.tli
 *.tlh
 *.tmp
