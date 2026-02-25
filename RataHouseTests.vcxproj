@@ -90,6 +90,7 @@
     <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\Interval.cpp" />
     <ClCompile Include="src\Solver.cpp" />
+    <ClCompile Include="src\YamlParser.cpp" />
     <ClCompile Include="tests\test_device.cpp" />
     <ClCompile Include="tests\test_interval.cpp" />
     <ClCompile Include="tests\test_solver_integration.cpp" />

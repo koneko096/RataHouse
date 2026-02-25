@@ -211,91 +211,91 @@ static int getInt(const YamlNode& node, const std::string& key, int defaultVal =
 // ---- Load YAML into solver globals ----
 
 void YamlFileInput() {
-    YamlNode root = YamlParser::parseFile(std::string(input));
+    YamlNode root = YamlParser::parseFile(std::string(RataHouse::input));
 
     // Grid settings
     YamlNode& grid = root.map["grid"];
-    totalSlot = getInt(grid, "total_slots", 48);
-    powerLimit = getInt(grid, "power_limit", 600);
+    RataHouse::totalSlot = getInt(grid, "total_slots", 48);
+    RataHouse::powerLimit = getInt(grid, "power_limit", 600);
 
     // Pricing intervals
     YamlNode& pricing = root.map["pricing"];
     YamlNode& yamlIntervals = pricing.map["intervals"];
 
-    ninterval = (int)yamlIntervals.list.size();
+    RataHouse::ninterval = (int)yamlIntervals.list.size();
 
     // Determine number of pricing levels from the first interval's tiers
-    ProLevel = 0;
-    if (ninterval > 0) {
+    RataHouse::ProLevel = 0;
+    if (RataHouse::ninterval > 0) {
         auto it = yamlIntervals.list[0].map.find("tiers");
         if (it != yamlIntervals.list[0].map.end()) {
-            ProLevel = (int)it->second.list.size();
+            RataHouse::ProLevel = (int)it->second.list.size();
         }
     }
 
     // Clear and resize
-    intervals.clear();
-    ProLimit.clear();
-    proCost.clear();
-    devices.clear();
+    RataHouse::intervals.clear();
+    RataHouse::ProLimit.clear();
+    RataHouse::proCost.clear();
+    RataHouse::devices.clear();
 
-    intervals.resize(ninterval + 2);
-    ProLimit.resize(ProLevel);
-    proCost.resize(ProLevel);
+    RataHouse::intervals.resize(RataHouse::ninterval + 2);
+    RataHouse::ProLimit.resize(RataHouse::ProLevel);
+    RataHouse::proCost.resize(RataHouse::ProLevel);
 
-    for (int i = 0; i < ProLevel; ++i) {
-        proCost[i].resize(ninterval);
+    for (int i = 0; i < RataHouse::ProLevel; ++i) {
+        RataHouse::proCost[i].resize(RataHouse::ninterval);
     }
 
     // Parse each interval
-    for (int j = 0; j < ninterval; ++j) {
+    for (int j = 0; j < RataHouse::ninterval; ++j) {
         YamlNode& intv = yamlIntervals.list[j];
         int startHour = getInt(intv, "start_hour");
         int endHour = getInt(intv, "end_hour");
 
         // Convert hours to half-hour slots (multiply by 2)
-        intervals[j].begin = startHour * 2;
-        intervals[j].end = endHour * 2;
+        RataHouse::intervals[j].begin = startHour * 2;
+        RataHouse::intervals[j].end = endHour * 2;
 
         // Parse tiers
         auto tiersIt = intv.map.find("tiers");
         if (tiersIt != intv.map.end()) {
-            for (int i = 0; i < ProLevel && i < (int)tiersIt->second.list.size(); ++i) {
+            for (int i = 0; i < RataHouse::ProLevel && i < (int)tiersIt->second.list.size(); ++i) {
                 YamlNode& tier = tiersIt->second.list[i];
                 std::string maxWattsStr = getStr(tier, "max_watts", "unlimited");
 
                 if (j == 0) {
                     // Set ProLimit from the first interval's tiers
                     if (maxWattsStr == "unlimited") {
-                        ProLimit[i] = 999999;
+                        RataHouse::ProLimit[i] = 999999;
                     } else {
-                        ProLimit[i] = std::atoi(maxWattsStr.c_str());
+                        RataHouse::ProLimit[i] = std::atoi(maxWattsStr.c_str());
                     }
                 }
 
-                proCost[i][j] = getInt(tier, "cost_per_slot");
+                RataHouse::proCost[i][j] = getInt(tier, "cost_per_slot");
             }
         }
     }
 
     // Parse devices
     YamlNode& yamlDevices = root.map["devices"];
-    ndevice = (int)yamlDevices.list.size();
-    devices.resize(ndevice);
+    RataHouse::ndevice = (int)yamlDevices.list.size();
+    RataHouse::devices.resize(RataHouse::ndevice);
 
-    for (int i = 0; i < ndevice; ++i) {
+    for (int i = 0; i < RataHouse::ndevice; ++i) {
         YamlNode& dev = yamlDevices.list[i];
-        devices[i].name = getStr(dev, "name");
-        devices[i].power = getInt(dev, "power");
-        devices[i].slot = getInt(dev, "slots_needed");
+        RataHouse::devices[i].name = getStr(dev, "name");
+        RataHouse::devices[i].power = getInt(dev, "power");
+        RataHouse::devices[i].slot = getInt(dev, "slots_needed");
 
         // Convert hours to half-hour slots
-        devices[i].permittedRange.begin = getInt(dev, "permitted_start") * 2;
-        devices[i].permittedRange.end = getInt(dev, "permitted_end") * 2;
+        RataHouse::devices[i].permittedRange.begin = getInt(dev, "permitted_start") * 2;
+        RataHouse::devices[i].permittedRange.end = getInt(dev, "permitted_end") * 2;
 
         std::string typeStr = getStr(dev, "type", "optional");
-        devices[i].wajib = (typeStr == "mandatory");
+        RataHouse::devices[i].wajib = (typeStr == "mandatory");
 
-        devices[i].nyala = getInt(dev, "sessions", 1);
+        RataHouse::devices[i].nyala = getInt(dev, "sessions", 1);
     }
 }

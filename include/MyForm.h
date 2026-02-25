@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "Solver.h"
+#include "YamlParser.h"
 
 using namespace System::Runtime::InteropServices;
 using namespace System;

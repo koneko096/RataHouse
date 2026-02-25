@@ -129,34 +129,34 @@ TEST(YamlInputTest, MatchesTextInput) {
     create_yaml_test_input(yamlFile);
 
     // Parse text format
-    input = const_cast<char*>(txtFile.c_str());
-    FileInput();
-    int txtTotalSlot = totalSlot;
-    int txtPowerLimit = powerLimit;
-    int txtNinterval = ninterval;
-    int txtProLevel = ProLevel;
-    int txtNdevice = ndevice;
+    RataHouse::input = const_cast<char*>(txtFile.c_str());
+    RataHouse::FileInput();
+    int txtTotalSlot = RataHouse::totalSlot;
+    int txtPowerLimit = RataHouse::powerLimit;
+    int txtNinterval = RataHouse::ninterval;
+    int txtProLevel = RataHouse::ProLevel;
+    int txtNdevice = RataHouse::ndevice;
 
     // Parse YAML format
-    input = const_cast<char*>(yamlFile.c_str());
+    RataHouse::input = const_cast<char*>(yamlFile.c_str());
     YamlFileInput();
 
-    EXPECT_EQ(totalSlot, txtTotalSlot);
-    EXPECT_EQ(powerLimit, txtPowerLimit);
-    EXPECT_EQ(ninterval, txtNinterval);
-    EXPECT_EQ(ProLevel, txtProLevel);
-    EXPECT_EQ(ndevice, txtNdevice);
+    EXPECT_EQ(RataHouse::totalSlot, txtTotalSlot);
+    EXPECT_EQ(RataHouse::powerLimit, txtPowerLimit);
+    EXPECT_EQ(RataHouse::ninterval, txtNinterval);
+    EXPECT_EQ(RataHouse::ProLevel, txtProLevel);
+    EXPECT_EQ(RataHouse::ndevice, txtNdevice);
 
     // Check intervals match
-    for (int i = 0; i < ninterval; i++) {
-        EXPECT_EQ(intervals[i].begin, intervals[i].begin);
-        EXPECT_EQ(intervals[i].end, intervals[i].end);
+    for (int i = 0; i < RataHouse::ninterval; i++) {
+        EXPECT_EQ(RataHouse::intervals[i].begin, RataHouse::intervals[i].begin);
+        EXPECT_EQ(RataHouse::intervals[i].end, RataHouse::intervals[i].end);
     }
 
     // Check devices match
-    for (int i = 0; i < ndevice; i++) {
-        EXPECT_EQ(devices[i].power, devices[i].power);
-        EXPECT_EQ(devices[i].wajib, devices[i].wajib);
+    for (int i = 0; i < RataHouse::ndevice; i++) {
+        EXPECT_EQ(RataHouse::devices[i].power, RataHouse::devices[i].power);
+        EXPECT_EQ(RataHouse::devices[i].wajib, RataHouse::devices[i].wajib);
     }
 
     remove(txtFile.c_str());
@@ -168,23 +168,23 @@ TEST(SolverIntegrationTest, YamlBasicOptimization) {
     std::string test_file = "test_yaml_solve.yaml";
     create_yaml_test_input(test_file);
 
-    input = const_cast<char*>(test_file.c_str());
+    RataHouse::input = const_cast<char*>(test_file.c_str());
     YamlFileInput();
-    calculateMean();
-    sortDevices();
+    RataHouse::calculateMean();
+    RataHouse::sortDevices();
 
-    int maxSkip = std::max(1, ndevice / 20);
+    int maxSkip = std::max(1, RataHouse::ndevice / 20);
     int skip = 0;
     bool solvable = true;
-    for (Device& d : devices) {
+    for (Device& d : RataHouse::devices) {
         if (skip == maxSkip) { solvable = false; break; }
-        else if (!set(d)) { skip++; continue; }
+        else if (!RataHouse::set(d)) { skip++; continue; }
         else { skip = 0; }
     }
 
     EXPECT_TRUE(solvable);
 
-    int finalCost = GetCost();
+    int finalCost = RataHouse::GetCost();
     EXPECT_GT(finalCost, 0);
 
     remove(test_file.c_str());
@@ -195,24 +195,24 @@ TEST(SuggestionsTest, OverloadedOptionalDevices) {
     std::string test_file = "test_overloaded.yaml";
     create_overloaded_yaml(test_file);
 
-    input = const_cast<char*>(test_file.c_str());
+    RataHouse::input = const_cast<char*>(test_file.c_str());
     YamlFileInput();
-    calculateMean();
-    sortDevices();
+    RataHouse::calculateMean();
+    RataHouse::sortDevices();
 
-    int maxSkip = std::max(1, ndevice / 20);
+    int maxSkip = std::max(1, RataHouse::ndevice / 20);
     int skip = 0;
-    for (Device& d : devices) {
+    for (Device& d : RataHouse::devices) {
         if (skip == maxSkip) break;
-        else if (!set(d)) { skip++; continue; }
+        else if (!RataHouse::set(d)) { skip++; continue; }
         else { skip = 0; }
     }
 
     // Collect suggestions for unscheduled optional devices
-    std::vector<DeviceSuggestion> suggestions;
-    for (const Device& d : devices) {
+    std::vector<RataHouse::DeviceSuggestion> suggestions;
+    for (const Device& d : RataHouse::devices) {
         if (!d.wajib && d.assignedRange.empty()) {
-            suggestions.push_back(DiagnoseDevice(d));
+            suggestions.push_back(RataHouse::DiagnoseDevice(d));
         }
     }
 
@@ -241,7 +241,7 @@ TEST(SuggestionsTest, NarrowTimeWindow) {
     d.wajib = false;
     d.nyala = 1;
 
-    DeviceSuggestion s = DiagnoseDevice(d);
+    RataHouse::DeviceSuggestion s = RataHouse::DiagnoseDevice(d);
     EXPECT_EQ(s.deviceName, "TestHeater");
     EXPECT_FALSE(s.reason.empty());
     // Should mention "narrow" or similar
@@ -274,20 +274,20 @@ TEST(SuggestionsTest, AllMandatoryNoSuggestions) {
         out.close();
     }
 
-    input = const_cast<char*>(test_file.c_str());
+    RataHouse::input = const_cast<char*>(test_file.c_str());
     YamlFileInput();
-    calculateMean();
-    sortDevices();
+    RataHouse::calculateMean();
+    RataHouse::sortDevices();
 
-    for (Device& d : devices) {
-        set(d);
+    for (Device& d : RataHouse::devices) {
+        RataHouse::set(d);
     }
 
     // No optional devices → no suggestions
-    std::vector<DeviceSuggestion> suggestions;
-    for (const Device& d : devices) {
+    std::vector<RataHouse::DeviceSuggestion> suggestions;
+    for (const Device& d : RataHouse::devices) {
         if (!d.wajib && d.assignedRange.empty()) {
-            suggestions.push_back(DiagnoseDevice(d));
+            suggestions.push_back(RataHouse::DiagnoseDevice(d));
         }
     }
     EXPECT_TRUE(suggestions.empty());
@@ -300,11 +300,11 @@ TEST(SolverIntegrationTest, TextFileBackwardCompat) {
     std::string test_file = "test_backward_compat.txt";
     create_text_test_input(test_file);
 
-    input = const_cast<char*>(test_file.c_str());
-    bool result = Solve();
+    RataHouse::input = const_cast<char*>(test_file.c_str());
+    bool result = RataHouse::Solve();
     EXPECT_TRUE(result);
 
-    int finalCost = GetCost();
+    int finalCost = RataHouse::GetCost();
     EXPECT_GT(finalCost, 0);
 
     remove(test_file.c_str());
