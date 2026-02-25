@@ -294,7 +294,6 @@ void sortDevices()
 // returning answer availability (exist / not)
 bool Solve()
 {
-	FileInput();
 	calculateMean();
 	sortDevices();
 
@@ -318,4 +317,119 @@ bool Solve()
 	}
 
 	return true;
+}
+
+// Diagnose why an optional device failed to be scheduled
+DeviceSuggestion DiagnoseDevice(const Device& d)
+{
+	DeviceSuggestion suggestion;
+	suggestion.deviceName = d.name;
+	suggestion.power = d.power;
+
+	// Check if the permitted time window is too narrow
+	int windowSlots = d.permittedRange.end - d.permittedRange.begin;
+	int requiredSlots = d.slot * d.nyala;
+
+	if (windowSlots < requiredSlots) {
+		suggestion.reason = "Time window too narrow: needs " 
+			+ to_string(requiredSlots) + " slots but only " 
+			+ to_string(windowSlots) + " slots available ("
+			+ to_string(d.permittedRange.begin / 2) + ":00-"
+			+ to_string(d.permittedRange.end / 2) + ":00)";
+		suggestion.recommendation = "Expand the permitted time window or reduce the number of sessions from "
+			+ to_string(d.nyala) + " to " + to_string(max(1, windowSlots / d.slot));
+		return suggestion;
+	}
+
+	// Check if the device power exceeds the global limit
+	if (d.power > powerLimit) {
+		suggestion.reason = "Device power (" + to_string(d.power) 
+			+ "W) exceeds the grid power limit (" + to_string(powerLimit) + "W)";
+		suggestion.recommendation = "Increase the grid power limit or use a lower-power alternative";
+		return suggestion;
+	}
+
+	// Check power budget conflict: compute current power usage per slot
+	int powerUsage[50] = {0};
+	for (const Device& other : devices) {
+		if (other.name == d.name) continue;
+		if (other.assignedRange.empty()) continue;
+		for (const Interval& rng : other.assignedRange) {
+			powerUsage[rng.begin] += other.power;
+			powerUsage[rng.end] -= other.power;
+		}
+	}
+	for (int i = 1; i < 48; ++i) {
+		powerUsage[i] += powerUsage[i - 1];
+	}
+
+	// Find time slots where the device could fit
+	int availableSlots = 0;
+	int bestStart = -1;
+	int consecutiveFree = 0;
+
+	for (int i = d.permittedRange.begin; i < d.permittedRange.end; ++i) {
+		if (i < 48 && powerUsage[i] + d.power <= powerLimit) {
+			availableSlots++;
+			consecutiveFree++;
+			if (bestStart == -1) bestStart = i;
+		} else {
+			consecutiveFree = 0;
+			if (consecutiveFree == 0) bestStart = -1;
+		}
+	}
+
+	if (availableSlots < requiredSlots) {
+		suggestion.reason = "Power budget conflict: only " + to_string(availableSlots)
+			+ " of " + to_string(requiredSlots) + " required slots have enough power headroom";
+
+		// Find the cheapest time window for a recommendation
+		int cheapestStart = -1;
+		int cheapestCost = 999999;
+		for (int i = 0; i < 48; ++i) {
+			if (powerUsage[i] + d.power <= powerLimit) {
+				int cost = slotCost(i, powerUsage[i] + d.power);
+				if (cost < cheapestCost) {
+					cheapestCost = cost;
+					cheapestStart = i;
+				}
+			}
+		}
+
+		if (cheapestStart >= 0) {
+			suggestion.recommendation = "Consider scheduling during off-peak hours around "
+				+ to_string(cheapestStart / 2) + ":"
+				+ (cheapestStart % 2 == 0 ? "00" : "30")
+				+ " where power headroom is available, or reduce sessions to "
+				+ to_string(max(1, availableSlots / d.slot));
+		} else {
+			suggestion.recommendation = "No available time slots. Consider increasing the power limit or reducing other device usage";
+		}
+	} else {
+		// Has enough power headroom but still failed (scheduling conflict with heuristic)
+		suggestion.reason = "Scheduling heuristic could not find an optimal placement within the available window";
+		suggestion.recommendation = "Try expanding the permitted time window beyond "
+			+ to_string(d.permittedRange.begin / 2) + ":00-"
+			+ to_string(d.permittedRange.end / 2) + ":00"
+			+ " or reduce sessions from " + to_string(d.nyala);
+	}
+
+	return suggestion;
+}
+
+// Enhanced solver that produces suggestions for unscheduled optional devices
+SolveResult SolveWithSuggestions()
+{
+	SolveResult result;
+	result.solvable = Solve();
+	result.totalCost = GetCost();
+
+	// Analyze each optional device that wasn't scheduled
+	for (const Device& d : devices) {
+		if (!d.wajib && d.assignedRange.empty()) {
+			result.suggestions.push_back(DiagnoseDevice(d));
+		}
+	}
+
+	return result;
 }

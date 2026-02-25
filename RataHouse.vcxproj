@@ -141,12 +141,14 @@
     <ClInclude Include="include\Interval.h" />
     <ClInclude Include="include\MyForm.h" />
     <ClInclude Include="include\Solver.h" />
+    <ClInclude Include="include\YamlParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Device.cpp" />
     <ClCompile Include="src\Interval.cpp" />
     <ClCompile Include="src\MyForm.cpp" />
     <ClCompile Include="src\Solver.cpp" />
+    <ClCompile Include="src\YamlParser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

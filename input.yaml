@@ -1,0 +1,52 @@
+grid:
+  total_slots: 48
+  power_limit: 600
+
+pricing:
+  intervals:
+    - start_hour: 0
+      end_hour: 6
+      tiers:
+        - max_watts: 300
+          cost_per_slot: 20
+        - max_watts: unlimited
+          cost_per_slot: 50
+    - start_hour: 6
+      end_hour: 18
+      tiers:
+        - max_watts: 300
+          cost_per_slot: 50
+        - max_watts: unlimited
+          cost_per_slot: 100
+    - start_hour: 18
+      end_hour: 24
+      tiers:
+        - max_watts: 300
+          cost_per_slot: 20
+        - max_watts: unlimited
+          cost_per_slot: 50
+
+devices:
+  - name: TV
+    power: 200
+    slots_needed: 8
+    permitted_start: 12
+    permitted_end: 20
+    type: mandatory
+    sessions: 1
+
+  - name: Kulkas
+    power: 300
+    slots_needed: 48
+    permitted_start: 0
+    permitted_end: 24
+    type: mandatory
+    sessions: 1
+
+  - name: Kompor
+    power: 100
+    slots_needed: 2
+    permitted_start: 5
+    permitted_end: 12
+    type: optional
+    sessions: 3

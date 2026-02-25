@@ -1,0 +1,38 @@
+grid:
+  total_slots: 48
+  power_limit: 400
+
+pricing:
+  intervals:
+    - start_hour: 0
+      end_hour: 24
+      tiers:
+        - max_watts: 300
+          cost_per_slot: 20
+        - max_watts: unlimited
+          cost_per_slot: 50
+
+devices:
+  - name: Kulkas
+    power: 350
+    slots_needed: 48
+    permitted_start: 0
+    permitted_end: 24
+    type: mandatory
+    sessions: 1
+
+  - name: Kompor
+    power: 200
+    slots_needed: 4
+    permitted_start: 0
+    permitted_end: 24
+    type: optional
+    sessions: 2
+
+  - name: Heater
+    power: 100
+    slots_needed: 6
+    permitted_start: 8
+    permitted_end: 10
+    type: optional
+    sessions: 1

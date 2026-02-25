@@ -32,7 +32,7 @@ echo Device tests built successfully
 echo.
 
 echo Building Solver Integration Tests...
-cl /EHsc /I"../include" test_solver_integration.cpp ../src/Solver.cpp ../src/Device.cpp ../src/Interval.cpp /Fe:test_solver_integration.exe
+cl /EHsc /I"../include" test_solver_integration.cpp ../src/Solver.cpp ../src/Device.cpp ../src/Interval.cpp ../src/YamlParser.cpp /Fe:test_solver_integration.exe
 if %ERRORLEVEL% NEQ 0 (
     echo ERROR: Failed to build Solver tests
     exit /b 1
